@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "copy-drawio": "node scripts/copy-drawio.js",
+    "predev": "npm run copy-drawio",
     "dev": "next dev",
+    "prebuild": "npm run copy-drawio",
     "build": "next build",
     "start": "node start-server.js",
     "lint": "eslint src/",

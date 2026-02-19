@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Save, Check } from 'lucide-react'
+import { ArrowLeft, Save, Check, PenTool } from 'lucide-react'
 import { useNote, useUpdateNote, useDeleteNote } from '@/lib/hooks/use-notes'
 import { notesApi } from '@/lib/api/notes'
 import { useTranslation } from '@/lib/hooks/use-translation'
 import { useAutoSave } from '@/lib/hooks/use-auto-save'
 import { MarkdownEditor, MarkdownEditorRef } from '@/components/ui/markdown-editor'
+import { DrawioEditor } from '@/components/ui/drawio-editor'
+import { ResizablePanel, type SplitDirection } from '@/components/ui/resizable-panel'
 import { InlineEdit } from '@/components/common/InlineEdit'
 import { UnsavedChangesDialog } from '@/components/common/UnsavedChangesDialog'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
@@ -16,6 +18,7 @@ import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
+import { extractDrawioXml, embedDrawioXml } from '@/lib/utils/drawio'
 
 export default function EditNotePage() {
     const params = useParams<{ id: string; noteId: string }>()
@@ -34,6 +37,9 @@ export default function EditNotePage() {
     const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
+    const [showDrawio, setShowDrawio] = useState(false)
+    const [splitDirection, setSplitDirection] = useState<SplitDirection>('vertical')
+    const [drawioXml, setDrawioXml] = useState('')
     const editorRef = useRef<MarkdownEditorRef>(null)
 
     // Initialize editor with note data
@@ -41,6 +47,7 @@ export default function EditNotePage() {
         if (note && !isInitialized) {
             setTitle(note.title ?? '')
             setContent(note.content ?? '')
+            setDrawioXml(extractDrawioXml(note.content ?? ''))
             setIsInitialized(true)
         }
     }, [note, isInitialized])
@@ -48,11 +55,15 @@ export default function EditNotePage() {
     // Silent save for auto-save (no toast)
     const performSave = useCallback(async () => {
         if (!noteId) return
+        // Embed drawio XML into content before saving
+        const fullContent = drawioXml
+            ? embedDrawioXml(content, drawioXml)
+            : content
         await notesApi.update(noteId, {
             title: title || undefined,
-            content: content || undefined,
+            content: fullContent || undefined,
         })
-    }, [noteId, title, content])
+    }, [noteId, title, content, drawioXml])
 
     // Auto-save hook
     const { isDirty, isSaving, lastSavedAt, save, markSaved } = useAutoSave({
@@ -65,15 +76,23 @@ export default function EditNotePage() {
     // Manual save with toast feedback
     const handleManualSave = useCallback(async () => {
         if (!noteId) return
+        const fullContent = drawioXml
+            ? embedDrawioXml(content, drawioXml)
+            : content
         await updateNoteMutation.mutateAsync({
             id: noteId,
             data: {
                 title: title || undefined,
-                content: content || undefined,
+                content: fullContent || undefined,
             },
         })
         markSaved()
-    }, [noteId, title, content, updateNoteMutation, markSaved])
+    }, [noteId, title, content, drawioXml, updateNoteMutation, markSaved])
+
+    // Drawio save handler
+    const handleDrawioSave = useCallback((xml: string) => {
+        setDrawioXml(xml)
+    }, [])
 
     // Mark as saved once note data loads
     useEffect(() => {
@@ -186,6 +205,15 @@ export default function EditNotePage() {
                             {t.common.save}
                         </Button>
                         <Button
+                            variant={showDrawio ? 'secondary' : 'outline'}
+                            size="sm"
+                            onClick={() => setShowDrawio(!showDrawio)}
+                            title="绘图"
+                        >
+                            <PenTool className="mr-1 h-4 w-4" />
+                            绘图
+                        </Button>
+                        <Button
                             variant="destructive"
                             size="sm"
                             onClick={() => setShowDeleteDialog(true)}
@@ -218,22 +246,50 @@ export default function EditNotePage() {
                     </div>
                 </div>
 
-                {/* Editor — only render after data is loaded, because
-                    Milkdown reads value only on initial mount */}
-                <div className="flex-1 overflow-hidden px-6 pb-6">
-                    {isInitialized ? (
-                        <MarkdownEditor
-                            ref={editorRef}
-                            key={noteId}
-                            value={content}
-                            onChange={(v) => setContent(v ?? '')}
-                            placeholder={t.sources.writeNotePlaceholder}
-                            height={500}
-                            className="h-full [&_.milkdown-editor-wrapper]:h-full"
-                        />
-                    ) : (
+                {/* Editor area */}
+                <div className="flex-1 overflow-hidden">
+                    {!isInitialized ? (
                         <div className="flex items-center justify-center h-full">
                             <LoadingSpinner />
+                        </div>
+                    ) : showDrawio ? (
+                        <ResizablePanel
+                            direction={splitDirection}
+                            onDirectionChange={setSplitDirection}
+                            className="h-full"
+                            first={
+                                <div className="h-full px-6 pb-4">
+                                    <MarkdownEditor
+                                        ref={editorRef}
+                                        key={noteId}
+                                        value={content}
+                                        onChange={(v) => setContent(v ?? '')}
+                                        placeholder={t.sources.writeNotePlaceholder}
+                                        height={500}
+                                        className="h-full [&_.milkdown-editor-wrapper]:h-full"
+                                    />
+                                </div>
+                            }
+                            second={
+                                <DrawioEditor
+                                    initialXml={drawioXml}
+                                    onSave={handleDrawioSave}
+                                    onExit={() => setShowDrawio(false)}
+                                    className="h-full"
+                                />
+                            }
+                        />
+                    ) : (
+                        <div className="h-full px-6 pb-6">
+                            <MarkdownEditor
+                                ref={editorRef}
+                                key={noteId}
+                                value={content}
+                                onChange={(v) => setContent(v ?? '')}
+                                placeholder={t.sources.writeNotePlaceholder}
+                                height={500}
+                                className="h-full [&_.milkdown-editor-wrapper]:h-full"
+                            />
                         </div>
                     )}
                 </div>

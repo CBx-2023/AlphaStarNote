@@ -2,15 +2,18 @@
 
 import { useState, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Save } from 'lucide-react'
+import { ArrowLeft, Save, PenTool } from 'lucide-react'
 import { useCreateNote } from '@/lib/hooks/use-notes'
 import { useTranslation } from '@/lib/hooks/use-translation'
 import { MarkdownEditor, MarkdownEditorRef } from '@/components/ui/markdown-editor'
+import { DrawioEditor } from '@/components/ui/drawio-editor'
+import { ResizablePanel, type SplitDirection } from '@/components/ui/resizable-panel'
 import { UnsavedChangesDialog } from '@/components/common/UnsavedChangesDialog'
 import { KeyboardShortcuts } from '@/components/common/KeyboardShortcuts'
 import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { embedDrawioXml } from '@/lib/utils/drawio'
 
 export default function NewNotePage() {
     const params = useParams<{ id: string }>()
@@ -24,9 +27,12 @@ export default function NewNotePage() {
     const [content, setContent] = useState('')
     const [isSaving, setIsSaving] = useState(false)
     const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
+    const [showDrawio, setShowDrawio] = useState(false)
+    const [splitDirection, setSplitDirection] = useState<SplitDirection>('vertical')
+    const [drawioXml, setDrawioXml] = useState('')
     const editorRef = useRef<MarkdownEditorRef>(null)
 
-    const isDirty = title.trim() !== '' || content.trim() !== ''
+    const isDirty = title.trim() !== '' || content.trim() !== '' || drawioXml !== ''
 
     const handleSave = useCallback(async () => {
         if (!content.trim()) return
@@ -35,7 +41,7 @@ export default function NewNotePage() {
         try {
             const result = await createNoteMutation.mutateAsync({
                 title: title || undefined,
-                content: content,
+                content: drawioXml ? embedDrawioXml(content, drawioXml) : content,
                 note_type: 'human',
                 notebook_id: notebookId,
             })
@@ -92,6 +98,15 @@ export default function NewNotePage() {
                             <Save className="mr-1 h-4 w-4" />
                             {isSaving ? t.common.saving : t.sources.createNoteBtn}
                         </Button>
+                        <Button
+                            variant={showDrawio ? 'secondary' : 'outline'}
+                            size="sm"
+                            onClick={() => setShowDrawio(!showDrawio)}
+                            title="绘图"
+                        >
+                            <PenTool className="mr-1 h-4 w-4" />
+                            绘图
+                        </Button>
                     </div>
                 </div>
 
@@ -109,15 +124,45 @@ export default function NewNotePage() {
                 </div>
 
                 {/* Editor */}
-                <div className="flex-1 overflow-hidden px-6 pb-6">
-                    <MarkdownEditor
-                        ref={editorRef}
-                        value={content}
-                        onChange={(v) => setContent(v ?? '')}
-                        placeholder={t.sources.writeNotePlaceholder}
-                        height={500}
-                        className="h-full [&_.milkdown-editor-wrapper]:h-full"
-                    />
+                <div className="flex-1 overflow-hidden">
+                    {showDrawio ? (
+                        <ResizablePanel
+                            direction={splitDirection}
+                            onDirectionChange={setSplitDirection}
+                            className="h-full"
+                            first={
+                                <div className="h-full px-6 pb-4">
+                                    <MarkdownEditor
+                                        ref={editorRef}
+                                        value={content}
+                                        onChange={(v) => setContent(v ?? '')}
+                                        placeholder={t.sources.writeNotePlaceholder}
+                                        height={500}
+                                        className="h-full [&_.milkdown-editor-wrapper]:h-full"
+                                    />
+                                </div>
+                            }
+                            second={
+                                <DrawioEditor
+                                    initialXml={drawioXml}
+                                    onSave={(xml) => setDrawioXml(xml)}
+                                    onExit={() => setShowDrawio(false)}
+                                    className="h-full"
+                                />
+                            }
+                        />
+                    ) : (
+                        <div className="h-full px-6 pb-6">
+                            <MarkdownEditor
+                                ref={editorRef}
+                                value={content}
+                                onChange={(v) => setContent(v ?? '')}
+                                placeholder={t.sources.writeNotePlaceholder}
+                                height={500}
+                                className="h-full [&_.milkdown-editor-wrapper]:h-full"
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
 

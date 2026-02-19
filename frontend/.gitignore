@@ -41,3 +41,6 @@ yarn-error.log*
 next-env.d.ts
 
 doc_exports/
+
+# draw.io assets (copied by scripts/copy-drawio.js)
+/public/drawio/
