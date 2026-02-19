@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { ArrowLeft, Save, Check } from 'lucide-react'
 import { useNote, useUpdateNote, useDeleteNote } from '@/lib/hooks/use-notes'
+import { notesApi } from '@/lib/api/notes'
 import { useTranslation } from '@/lib/hooks/use-translation'
 import { useAutoSave } from '@/lib/hooks/use-auto-save'
 import { MarkdownEditor, MarkdownEditorRef } from '@/components/ui/markdown-editor'
@@ -43,17 +44,14 @@ export default function EditNotePage() {
         }
     }, [note, isInitialized])
 
-    // Save function
+    // Silent save for auto-save (no toast)
     const performSave = useCallback(async () => {
         if (!noteId) return
-        await updateNoteMutation.mutateAsync({
-            id: noteId,
-            data: {
-                title: title || undefined,
-                content: content || undefined,
-            },
+        await notesApi.update(noteId, {
+            title: title || undefined,
+            content: content || undefined,
         })
-    }, [noteId, title, content, updateNoteMutation])
+    }, [noteId, title, content])
 
     // Auto-save hook
     const { isDirty, isSaving, lastSavedAt, save, markSaved } = useAutoSave({
@@ -62,6 +60,19 @@ export default function EditNotePage() {
         interval: 10000,
         enabled: isInitialized,
     })
+
+    // Manual save with toast feedback
+    const handleManualSave = useCallback(async () => {
+        if (!noteId) return
+        await updateNoteMutation.mutateAsync({
+            id: noteId,
+            data: {
+                title: title || undefined,
+                content: content || undefined,
+            },
+        })
+        markSaved()
+    }, [noteId, title, content, updateNoteMutation, markSaved])
 
     // Mark as saved once note data loads
     useEffect(() => {
@@ -167,7 +178,7 @@ export default function EditNotePage() {
                         )}
                         <Button
                             size="sm"
-                            onClick={() => save()}
+                            onClick={() => handleManualSave()}
                             disabled={!isDirty || isSaving}
                         >
                             <Save className="mr-1 h-4 w-4" />
