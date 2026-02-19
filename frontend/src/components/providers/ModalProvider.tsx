@@ -1,7 +1,6 @@
 'use client'
 
 import { useModalManager } from '@/lib/hooks/use-modal-manager'
-import { NoteEditorDialog } from '@/app/(dashboard)/notebooks/components/NoteEditorDialog'
 import { SourceInsightDialog } from '@/components/source/SourceInsightDialog'
 import { SourceDialog } from '@/components/source/SourceDialog'
 
@@ -13,8 +12,10 @@ import { SourceDialog } from '@/components/source/SourceDialog'
  *
  * Supported modal types:
  * - source: Source detail modal
- * - note: Note editor modal
  * - insight: Source insight modal
+ *
+ * Note: Note editing has been moved to dedicated pages
+ * (/notebooks/[id]/notes/[noteId] and /notebooks/[id]/notes/new)
  */
 export function ModalProvider() {
   const { modalType, modalId, closeModal } = useModalManager()
@@ -28,16 +29,6 @@ export function ModalProvider() {
           if (!open) closeModal()
         }}
         sourceId={modalId}
-      />
-
-      {/* Note Modal */}
-      <NoteEditorDialog
-        open={modalType === 'note'}
-        onOpenChange={(open) => {
-          if (!open) closeModal()
-        }}
-        notebookId="" // Will need to be fetched or handled in Phase 9
-        note={modalId ? { id: modalId, title: null, content: null } : undefined}
       />
 
       {/* Source Insight Modal */}

@@ -129,6 +129,12 @@ export const ptBR = {
       clickToCycle: "Clique para alternar",
     },
     clickToEdit: "Clique para editar",
+    unsavedChanges: "Alterações não salvas",
+    unsavedChangesDesc: "Você tem alterações não salvas. O que deseja fazer?",
+    discard: "Descartar",
+    saveAndLeave: "Salvar e sair",
+    autoSaved: "Salvo automaticamente",
+    backToNotebook: "Voltar ao caderno",
   },
   apiErrors: {
     notebookNotFound: "Caderno não encontrado",

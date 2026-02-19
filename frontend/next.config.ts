@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   // Enable standalone output for optimized Docker deployment
   output: "standalone",
 
+  // Transpile Milkdown packages so Turbopack can resolve their CSS
+  transpilePackages: ['@milkdown/crepe', '@milkdown/kit', '@milkdown/core', '@milkdown/react'],
+
   // Experimental features
   // Type assertion needed: proxyClientMaxBodySize is valid in Next.js 15 but types lag behind
   experimental: {

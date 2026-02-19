@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import { useRouter } from 'next/navigation'
 import { NoteResponse } from '@/lib/types/api'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,7 +15,7 @@ import { Plus, StickyNote, Bot, User, MoreVertical, Trash2 } from 'lucide-react'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
 import { EmptyState } from '@/components/common/EmptyState'
 import { Badge } from '@/components/ui/badge'
-import { NoteEditorDialog } from './NoteEditorDialog'
+
 import { getDateLocale } from '@/lib/utils/date-locale'
 import { formatDistanceToNow } from 'date-fns'
 import { ContextToggle } from '@/components/common/ContextToggle'
@@ -41,8 +42,7 @@ export function NotesColumn({
   onContextModeChange
 }: NotesColumnProps) {
   const { t, language } = useTranslation()
-  const [showAddDialog, setShowAddDialog] = useState(false)
-  const [editingNote, setEditingNote] = useState<NoteResponse | null>(null)
+  const router = useRouter()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [noteToDelete, setNoteToDelete] = useState<string | null>(null)
 
@@ -87,10 +87,7 @@ export function NotesColumn({
               <div className="flex items-center gap-2">
                 <Button
                   size="sm"
-                  onClick={() => {
-                    setEditingNote(null)
-                    setShowAddDialog(true)
-                  }}
+                  onClick={() => router.push(`/notebooks/${notebookId}/notes/new`)}
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   {t.common.writeNote}
@@ -117,7 +114,7 @@ export function NotesColumn({
                   <div
                     key={note.id}
                     className="p-3 border rounded-lg card-hover group relative cursor-pointer"
-                    onClick={() => setEditingNote(note)}
+                    onClick={() => router.push(`/notebooks/${notebookId}/notes/${note.id}`)}
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -133,7 +130,7 @@ export function NotesColumn({
 
                       <div className="flex items-center gap-2">
                         <span className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(note.updated), { 
+                          {formatDistanceToNow(new Date(note.updated), {
                             addSuffix: true,
                             locale: getDateLocale(language)
                           })}
@@ -194,20 +191,6 @@ export function NotesColumn({
           </CardContent>
         </Card>
       </CollapsibleColumn>
-
-      <NoteEditorDialog
-        open={showAddDialog || Boolean(editingNote)}
-        onOpenChange={(open) => {
-          if (!open) {
-            setShowAddDialog(false)
-            setEditingNote(null)
-          } else {
-            setShowAddDialog(true)
-          }
-        }}
-        notebookId={notebookId}
-        note={editingNote ?? undefined}
-      />
 
       <ConfirmDialog
         open={deleteDialogOpen}

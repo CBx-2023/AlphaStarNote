@@ -129,6 +129,12 @@ export const itIT = {
       clickToCycle: "Clicca per cambiare",
     },
     clickToEdit: "Clicca per modificare",
+    unsavedChanges: "Modifiche non salvate",
+    unsavedChangesDesc: "Hai delle modifiche non salvate. Cosa vuoi fare?",
+    discard: "Scarta",
+    saveAndLeave: "Salva e esci",
+    autoSaved: "Salvato automaticamente",
+    backToNotebook: "Torna al quaderno",
   },
   apiErrors: {
     notebookNotFound: "Quaderno non trovato",

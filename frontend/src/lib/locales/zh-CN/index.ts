@@ -129,6 +129,12 @@ export const zhCN = {
       clickToCycle: "点击循环切换",
     },
     clickToEdit: "点击编辑",
+    unsavedChanges: "未保存的更改",
+    unsavedChangesDesc: "你有未保存的更改。你想要怎么做？",
+    discard: "放弃",
+    saveAndLeave: "保存并离开",
+    autoSaved: "自动保存",
+    backToNotebook: "返回笔记本",
   },
   apiErrors: {
     notebookNotFound: "找不到笔记本",

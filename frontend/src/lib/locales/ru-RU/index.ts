@@ -129,6 +129,12 @@ export const ruRU = {
       clickToCycle: "Нажмите для переключения",
     },
     clickToEdit: "Нажмите для редактирования",
+    unsavedChanges: "Несохранённые изменения",
+    unsavedChangesDesc: "У вас есть несохранённые изменения. Что вы хотите сделать?",
+    discard: "Отменить",
+    saveAndLeave: "Сохранить и выйти",
+    autoSaved: "Автосохранение",
+    backToNotebook: "Вернуться к записной книжке",
   },
   apiErrors: {
     notebookNotFound: "Блокнот не найден",

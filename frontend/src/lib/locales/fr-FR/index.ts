@@ -129,6 +129,12 @@ export const frFR = {
       clickToCycle: "Cliquez pour faire défiler",
     },
     clickToEdit: "Cliquez pour modifier",
+    unsavedChanges: "Modifications non enregistrées",
+    unsavedChangesDesc: "Vous avez des modifications non enregistrées. Que souhaitez-vous faire ?",
+    discard: "Abandonner",
+    saveAndLeave: "Enregistrer et quitter",
+    autoSaved: "Enregistré automatiquement",
+    backToNotebook: "Retour au carnet",
   },
   apiErrors: {
     notebookNotFound: "Carnet introuvable",

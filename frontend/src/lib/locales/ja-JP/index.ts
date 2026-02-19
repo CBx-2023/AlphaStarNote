@@ -129,6 +129,12 @@ export const jaJP = {
       clickToCycle: "クリックで切り替え",
     },
     clickToEdit: "クリックして編集",
+    unsavedChanges: "未保存の変更",
+    unsavedChangesDesc: "未保存の変更があります。どうしますか？",
+    discard: "破棄",
+    saveAndLeave: "保存して離れる",
+    autoSaved: "自動保存済み",
+    backToNotebook: "ノートブックに戻る",
   },
   apiErrors: {
     notebookNotFound: "ノートブックが見つかりません",

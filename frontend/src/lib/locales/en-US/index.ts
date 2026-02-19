@@ -129,6 +129,12 @@ export const enUS = {
       clickToCycle: "Click to cycle",
     },
     clickToEdit: "Click to edit",
+    unsavedChanges: "Unsaved Changes",
+    unsavedChangesDesc: "You have unsaved changes. What would you like to do?",
+    discard: "Discard",
+    saveAndLeave: "Save & Leave",
+    autoSaved: "Auto-saved",
+    backToNotebook: "Back to Notebook",
   },
   apiErrors: {
     notebookNotFound: "Notebook not found",

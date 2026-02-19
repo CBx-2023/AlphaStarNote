@@ -129,6 +129,12 @@ export const zhTW = {
       clickToCycle: "點擊循環切換",
     },
     clickToEdit: "點擊編輯",
+    unsavedChanges: "未儲存的變更",
+    unsavedChangesDesc: "你有未儲存的變更。你想要怎麼做？",
+    discard: "捨棄",
+    saveAndLeave: "儲存並離開",
+    autoSaved: "自動儲存",
+    backToNotebook: "返回筆記本",
   },
   apiErrors: {
     notebookNotFound: "找不到筆記本",
