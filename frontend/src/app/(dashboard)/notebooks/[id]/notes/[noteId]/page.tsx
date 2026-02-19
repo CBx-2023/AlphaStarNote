@@ -19,8 +19,8 @@ export default function EditNotePage() {
     const params = useParams<{ id: string; noteId: string }>()
     const router = useRouter()
     const { t } = useTranslation()
-    const notebookId = params.id
-    const noteId = params.noteId
+    const notebookId = params.id ? decodeURIComponent(params.id as string) : ''
+    const noteId = params.noteId ? decodeURIComponent(params.noteId as string) : ''
 
     const { data: note, isLoading } = useNote(noteId)
     const updateNoteMutation = useUpdateNote()

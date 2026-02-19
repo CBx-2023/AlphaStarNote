@@ -15,7 +15,7 @@ export default function NewNotePage() {
     const params = useParams<{ id: string }>()
     const router = useRouter()
     const { t } = useTranslation()
-    const notebookId = params.id
+    const notebookId = params.id ? decodeURIComponent(params.id as string) : ''
 
     const createNoteMutation = useCreateNote()
 
