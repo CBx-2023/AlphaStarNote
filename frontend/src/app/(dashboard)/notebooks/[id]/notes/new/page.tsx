@@ -7,6 +7,7 @@ import { useCreateNote } from '@/lib/hooks/use-notes'
 import { useTranslation } from '@/lib/hooks/use-translation'
 import { MarkdownEditor, MarkdownEditorRef } from '@/components/ui/markdown-editor'
 import { UnsavedChangesDialog } from '@/components/common/UnsavedChangesDialog'
+import { KeyboardShortcuts } from '@/components/common/KeyboardShortcuts'
 import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -93,6 +94,9 @@ export default function NewNotePage() {
                         </Button>
                     </div>
                 </div>
+
+                {/* Keyboard shortcuts */}
+                <KeyboardShortcuts />
 
                 {/* Title */}
                 <div className="px-6 pt-4 pb-2 shrink-0">

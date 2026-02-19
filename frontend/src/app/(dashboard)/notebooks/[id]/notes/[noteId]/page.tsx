@@ -11,6 +11,7 @@ import { MarkdownEditor, MarkdownEditorRef } from '@/components/ui/markdown-edit
 import { InlineEdit } from '@/components/common/InlineEdit'
 import { UnsavedChangesDialog } from '@/components/common/UnsavedChangesDialog'
 import { ConfirmDialog } from '@/components/common/ConfirmDialog'
+import { KeyboardShortcuts } from '@/components/common/KeyboardShortcuts'
 import { AppShell } from '@/components/layout/AppShell'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -193,6 +194,9 @@ export default function EditNotePage() {
                         </Button>
                     </div>
                 </div>
+
+                {/* Keyboard shortcuts */}
+                <KeyboardShortcuts />
 
                 {/* Title and metadata */}
                 <div className="px-6 pt-4 pb-2 shrink-0">
