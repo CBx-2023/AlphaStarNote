@@ -214,17 +214,24 @@ export default function EditNotePage() {
                     </div>
                 </div>
 
-                {/* Editor */}
+                {/* Editor — only render after data is loaded, because
+                    Milkdown reads value only on initial mount */}
                 <div className="flex-1 overflow-hidden px-6 pb-6">
-                    <MarkdownEditor
-                        ref={editorRef}
-                        key={noteId}
-                        value={content}
-                        onChange={(v) => setContent(v ?? '')}
-                        placeholder={t.sources.writeNotePlaceholder}
-                        height={500}
-                        className="h-full [&_.milkdown-editor-wrapper]:h-full"
-                    />
+                    {isInitialized ? (
+                        <MarkdownEditor
+                            ref={editorRef}
+                            key={noteId}
+                            value={content}
+                            onChange={(v) => setContent(v ?? '')}
+                            placeholder={t.sources.writeNotePlaceholder}
+                            height={500}
+                            className="h-full [&_.milkdown-editor-wrapper]:h-full"
+                        />
+                    ) : (
+                        <div className="flex items-center justify-center h-full">
+                            <LoadingSpinner />
+                        </div>
+                    )}
                 </div>
             </div>
 
