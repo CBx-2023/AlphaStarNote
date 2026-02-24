@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Save, PenTool } from 'lucide-react'
+import { ArrowLeft, Save, PenTool, Bot } from 'lucide-react'
 import { useCreateNote } from '@/lib/hooks/use-notes'
 import { useTranslation } from '@/lib/hooks/use-translation'
 import { MarkdownEditor, MarkdownEditorRef } from '@/components/ui/markdown-editor'
@@ -11,6 +11,7 @@ import { ResizablePanel, type SplitDirection } from '@/components/ui/resizable-p
 import { UnsavedChangesDialog } from '@/components/common/UnsavedChangesDialog'
 import { KeyboardShortcuts } from '@/components/common/KeyboardShortcuts'
 import { AppShell } from '@/components/layout/AppShell'
+import { ChatColumn } from '@/app/(dashboard)/notebooks/components/ChatColumn'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { embedDrawioXml } from '@/lib/utils/drawio'
@@ -28,9 +29,13 @@ export default function NewNotePage() {
     const [isSaving, setIsSaving] = useState(false)
     const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
     const [showDrawio, setShowDrawio] = useState(false)
+    const [showChat, setShowChat] = useState(false)
     const [splitDirection, setSplitDirection] = useState<SplitDirection>('vertical')
     const [drawioXml, setDrawioXml] = useState('')
     const editorRef = useRef<MarkdownEditorRef>(null)
+
+    // Default context selections for ChatColumn
+    const defaultContextSelections = { sources: {} as Record<string, 'off' | 'insights' | 'full'>, notes: {} as Record<string, 'off' | 'insights' | 'full'> }
 
     const isDirty = title.trim() !== '' || content.trim() !== '' || drawioXml !== ''
 
@@ -101,11 +106,20 @@ export default function NewNotePage() {
                         <Button
                             variant={showDrawio ? 'secondary' : 'outline'}
                             size="sm"
-                            onClick={() => setShowDrawio(!showDrawio)}
+                            onClick={() => { setShowDrawio(!showDrawio); if (!showDrawio) setShowChat(false) }}
                             title="绘图"
                         >
                             <PenTool className="mr-1 h-4 w-4" />
                             绘图
+                        </Button>
+                        <Button
+                            variant={showChat ? 'secondary' : 'outline'}
+                            size="sm"
+                            onClick={() => { setShowChat(!showChat); if (!showChat) setShowDrawio(false) }}
+                            title="AI 对话"
+                        >
+                            <Bot className="mr-1 h-4 w-4" />
+                            AI
                         </Button>
                     </div>
                 </div>
@@ -149,6 +163,33 @@ export default function NewNotePage() {
                                     onExit={() => setShowDrawio(false)}
                                     className="h-full"
                                 />
+                            }
+                        />
+                    ) : showChat ? (
+                        <ResizablePanel
+                            direction={splitDirection}
+                            onDirectionChange={setSplitDirection}
+                            className="h-full"
+                            defaultRatio={0.6}
+                            first={
+                                <div className="h-full px-6 pb-4">
+                                    <MarkdownEditor
+                                        ref={editorRef}
+                                        value={content}
+                                        onChange={(v) => setContent(v ?? '')}
+                                        placeholder={t.sources.writeNotePlaceholder}
+                                        height={500}
+                                        className="h-full [&_.milkdown-editor-wrapper]:h-full"
+                                    />
+                                </div>
+                            }
+                            second={
+                                <div className="h-full overflow-hidden">
+                                    <ChatColumn
+                                        notebookId={notebookId}
+                                        contextSelections={defaultContextSelections}
+                                    />
+                                </div>
                             }
                         />
                     ) : (
