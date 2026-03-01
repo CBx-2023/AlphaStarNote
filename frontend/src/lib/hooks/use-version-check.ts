@@ -16,6 +16,8 @@ export function useVersionCheck() {
   const hasChecked = useRef(false)
 
   useEffect(() => {
+    // TODO: Temporarily disabled version check notification
+    return
     if (hasChecked.current) return
     hasChecked.current = true
 
@@ -32,7 +34,7 @@ export function useVersionCheck() {
           closeButton: true,
           action: {
             label: t.advanced.viewOnGithub,
-            onClick: () => window.open('https://github.com/lfnovo/open-notebook', '_blank'),
+            onClick: () => window.open('https://github.com/CBx-2023/AlphaStarNote.git ', '_blank'),
           },
           onDismiss: () => sessionStorage.setItem(dismissKey, 'true'),
         })
