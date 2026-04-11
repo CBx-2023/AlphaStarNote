@@ -74,6 +74,7 @@ class TestInteractiveClassroomJobs:
             "status": "queued",
             "step": "queued",
             "message": "Preparing classroom",
+            "pollIntervalMs": 5000,
         }
 
         response = client.post(
@@ -95,6 +96,7 @@ class TestInteractiveClassroomJobs:
         assert data["job_id"] == "job_123"
         assert data["status"] == "queued"
         assert data["message"] == "Preparing classroom"
+        assert data["poll_interval_ms"] == 5000
         assert data["done"] is False
 
         _, _, payload = mock_request.await_args.args
@@ -113,6 +115,7 @@ class TestInteractiveClassroomJobs:
             "step": "completed",
             "message": "Classroom ready",
             "progress": 100,
+            "pollIntervalMs": 5000,
             "done": True,
             "result": {
                 "classroomId": "abc123",
@@ -126,6 +129,7 @@ class TestInteractiveClassroomJobs:
         data = response.json()
         assert data["job_id"] == "job_123"
         assert data["status"] == "completed"
+        assert data["poll_interval_ms"] == 5000
         assert data["result_url"] == "https://open.maic.chat/classroom/abc123"
         assert data["done"] is True
 

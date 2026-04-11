@@ -24,6 +24,7 @@ export interface InteractiveClassroomJobStatus {
   step?: string | null
   message?: string | null
   progress?: number | null
+  poll_interval_ms?: number | null
   done: boolean
   result_url?: string | null
   error?: string | null

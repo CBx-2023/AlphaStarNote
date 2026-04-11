@@ -1,3 +1,4 @@
+import asyncio
 import os
 import re
 from urllib.parse import urljoin
@@ -30,6 +31,8 @@ DRAWIO_REGEX = re.compile(
 OPENMAIC_BASE_URL = os.getenv("OPENMAIC_BASE_URL", "https://open.maic.chat").rstrip(
     "/"
 )
+OPENMAIC_CREATE_TIMEOUT = httpx.Timeout(connect=15.0, read=120.0, write=30.0, pool=15.0)
+OPENMAIC_STATUS_TIMEOUT = httpx.Timeout(connect=15.0, read=180.0, write=30.0, pool=15.0)
 
 
 def _normalize_language(language: str | None) -> str:
@@ -105,12 +108,16 @@ def _extract_result_url(payload: dict) -> str | None:
 def _normalize_job_response(job_id: str, payload: dict) -> dict:
     status = str(payload.get("status") or "pending")
     error = payload.get("error")
+    poll_interval_ms = payload.get("pollIntervalMs")
     return {
         "job_id": job_id,
         "status": status,
         "step": payload.get("step"),
         "message": payload.get("message"),
         "progress": payload.get("progress"),
+        "poll_interval_ms": (
+            poll_interval_ms if isinstance(poll_interval_ms, int) and poll_interval_ms > 0 else None
+        ),
         "done": bool(payload.get("done", status in {"completed", "failed", "canceled"})),
         "result_url": _extract_result_url(payload),
         "error": error if isinstance(error, str) else None,
@@ -118,18 +125,48 @@ def _normalize_job_response(job_id: str, payload: dict) -> dict:
 
 
 async def _request_openmaic_json(
-    method: str, path: str, payload: dict | None = None
+    method: str,
+    path: str,
+    payload: dict | None = None,
+    *,
+    timeout: httpx.Timeout,
+    retries: int = 0,
 ) -> dict:
     url = f"{OPENMAIC_BASE_URL}{path}"
-    timeout = httpx.Timeout(60.0, connect=15.0)
+    attempt = 0
 
-    try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            response = await client.request(method=method, url=url, json=payload)
-    except httpx.TimeoutException as exc:
-        raise NetworkError("OpenMAIC request timed out") from exc
-    except httpx.RequestError as exc:
-        raise NetworkError("Unable to reach OpenMAIC") from exc
+    while True:
+        try:
+            async with httpx.AsyncClient(timeout=timeout) as client:
+                response = await client.request(method=method, url=url, json=payload)
+            break
+        except httpx.TimeoutException as exc:
+            if attempt >= retries:
+                raise NetworkError("OpenMAIC request timed out") from exc
+
+            attempt += 1
+            logger.warning(
+                "OpenMAIC request timed out, retrying {method} {path} (attempt {attempt}/{total})",
+                method=method,
+                path=path,
+                attempt=attempt,
+                total=retries,
+            )
+            await asyncio.sleep(min(2 * attempt, 5))
+        except httpx.RequestError as exc:
+            if attempt >= retries:
+                raise NetworkError("Unable to reach OpenMAIC") from exc
+
+            attempt += 1
+            logger.warning(
+                "OpenMAIC request failed, retrying {method} {path} (attempt {attempt}/{total}): {error}",
+                method=method,
+                path=path,
+                attempt=attempt,
+                total=retries,
+                error=str(exc),
+            )
+            await asyncio.sleep(min(2 * attempt, 5))
 
     if response.status_code == 404:
         raise NotFoundError(_extract_remote_detail(response))
@@ -214,6 +251,8 @@ async def create_interactive_classroom_job(
             },
             "language": normalized_language,
         },
+        timeout=OPENMAIC_CREATE_TIMEOUT,
+        retries=1,
     )
 
     job_id = payload.get("jobId")
@@ -234,7 +273,10 @@ async def get_interactive_classroom_job_status(job_id: str):
         raise InvalidInputError("Job ID cannot be empty")
 
     payload = await _request_openmaic_json(
-        "GET", f"/api/generate-classroom/{job_id.strip()}"
+        "GET",
+        f"/api/generate-classroom/{job_id.strip()}",
+        timeout=OPENMAIC_STATUS_TIMEOUT,
+        retries=2,
     )
     return InteractiveClassroomJobStatusResponse(
         **_normalize_job_response(job_id.strip(), payload)

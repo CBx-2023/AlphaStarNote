@@ -7,7 +7,8 @@ import { InteractiveClassroomJobStatus } from '@/lib/types/interactive-classroom
 import { formatApiError } from '@/lib/utils/error-handler'
 import { removeDrawioXml } from '@/lib/utils/drawio'
 
-const POLL_INTERVAL_MS = 2500
+const DEFAULT_POLL_INTERVAL_MS = 5000
+const MAX_TRANSIENT_POLL_ERRORS = 3
 const EMBED_TIMEOUT_MS = 15000
 
 type InteractiveClassroomEmbedState = 'idle' | 'loading' | 'ready' | 'failed'
@@ -42,6 +43,7 @@ export function useInteractiveClassroom({
   const [iframeKey, setIframeKey] = useState(0)
 
   const pollTokenRef = useRef(0)
+  const transientPollErrorCountRef = useRef(0)
   const embedTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const classroomUrlRef = useRef<string | null>(null)
 
@@ -70,6 +72,7 @@ export function useInteractiveClassroom({
 
   const cancelPolling = useCallback(() => {
     pollTokenRef.current += 1
+    transientPollErrorCountRef.current = 0
   }, [])
 
   const beginEmbed = useCallback(
@@ -97,12 +100,15 @@ export function useInteractiveClassroom({
   const pollJobStatus = useCallback(
     async (jobId: string, token: number) => {
       while (pollTokenRef.current === token) {
+        let nextPollDelayMs = DEFAULT_POLL_INTERVAL_MS
+
         try {
           const nextStatus = await interactiveClassroomApi.getJobStatus(jobId)
           if (pollTokenRef.current !== token) {
             return
           }
 
+          transientPollErrorCountRef.current = 0
           setInteractiveClassroomJob(nextStatus)
 
           if (
@@ -115,34 +121,48 @@ export function useInteractiveClassroom({
           if (nextStatus.done) {
             return
           }
+
+          if (
+            typeof nextStatus.poll_interval_ms === 'number' &&
+            nextStatus.poll_interval_ms > 0
+          ) {
+            nextPollDelayMs = nextStatus.poll_interval_ms
+          }
         } catch (error) {
           if (pollTokenRef.current !== token) {
             return
           }
 
           const message = formatApiError(error)
-          setInteractiveClassroomJob((currentStatus) =>
-            currentStatus
-              ? {
-                  ...currentStatus,
-                  status: 'failed',
-                  message,
-                  error: message,
-                  done: true,
-                }
-              : {
-                  job_id: jobId,
-                  status: 'failed',
-                  message,
-                  error: message,
-                  done: true,
-                }
-          )
-          reportError(message)
-          return
+
+          transientPollErrorCountRef.current += 1
+          if (transientPollErrorCountRef.current >= MAX_TRANSIENT_POLL_ERRORS) {
+            setInteractiveClassroomJob((currentStatus) =>
+              currentStatus
+                ? {
+                    ...currentStatus,
+                    status: 'failed',
+                    message,
+                    error: message,
+                    done: true,
+                  }
+                : {
+                    job_id: jobId,
+                    status: 'failed',
+                    message,
+                    error: message,
+                    done: true,
+                  }
+            )
+            reportError(message)
+            return
+          }
+
+          nextPollDelayMs =
+            DEFAULT_POLL_INTERVAL_MS * transientPollErrorCountRef.current
         }
 
-        await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS))
+        await new Promise((resolve) => setTimeout(resolve, nextPollDelayMs))
       }
     },
     [beginEmbed, reportError]

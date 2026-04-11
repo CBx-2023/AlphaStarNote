@@ -717,6 +717,9 @@ class InteractiveClassroomJobCreateResponse(BaseModel):
     step: Optional[str] = Field(None, description="Current processing step")
     message: Optional[str] = Field(None, description="User-facing progress message")
     progress: Optional[float] = Field(None, description="Job progress percentage")
+    poll_interval_ms: Optional[int] = Field(
+        None, description="Suggested polling interval from OpenMAIC"
+    )
     done: bool = Field(False, description="Whether the job is complete")
     result_url: Optional[str] = Field(
         None, description="Generated classroom URL, when available"
@@ -730,6 +733,9 @@ class InteractiveClassroomJobStatusResponse(BaseModel):
     step: Optional[str] = Field(None, description="Current processing step")
     message: Optional[str] = Field(None, description="User-facing progress message")
     progress: Optional[float] = Field(None, description="Job progress percentage")
+    poll_interval_ms: Optional[int] = Field(
+        None, description="Suggested polling interval from OpenMAIC"
+    )
     done: bool = Field(False, description="Whether the job is complete")
     result_url: Optional[str] = Field(
         None, description="Generated classroom URL, when available"
