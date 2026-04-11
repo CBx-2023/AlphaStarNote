@@ -1,0 +1,11 @@
+-- Migration 15: Add owner field to core business tables for multi-tenancy
+DEFINE FIELD IF NOT EXISTS owner ON TABLE notebook TYPE option<record<user>>;
+DEFINE FIELD IF NOT EXISTS owner ON TABLE source TYPE option<record<user>>;
+DEFINE FIELD IF NOT EXISTS owner ON TABLE note TYPE option<record<user>>;
+DEFINE FIELD IF NOT EXISTS owner ON TABLE chat_session TYPE option<record<user>>;
+
+-- Indexes for fast owner-scoped queries
+DEFINE INDEX IF NOT EXISTS idx_notebook_owner ON TABLE notebook COLUMNS owner;
+DEFINE INDEX IF NOT EXISTS idx_source_owner ON TABLE source COLUMNS owner;
+DEFINE INDEX IF NOT EXISTS idx_note_owner ON TABLE note COLUMNS owner;
+DEFINE INDEX IF NOT EXISTS idx_chat_owner ON TABLE chat_session COLUMNS owner;

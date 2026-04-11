@@ -1,0 +1,10 @@
+-- Migration 15 down: Remove owner fields and indexes
+REMOVE INDEX idx_notebook_owner ON TABLE notebook;
+REMOVE INDEX idx_source_owner ON TABLE source;
+REMOVE INDEX idx_note_owner ON TABLE note;
+REMOVE INDEX idx_chat_owner ON TABLE chat_session;
+
+REMOVE FIELD owner ON TABLE notebook;
+REMOVE FIELD owner ON TABLE source;
+REMOVE FIELD owner ON TABLE note;
+REMOVE FIELD owner ON TABLE chat_session;

@@ -79,10 +79,12 @@ ENV VIRTUAL_ENV=/app/.venv
 # Bind Next.js to all interfaces (required for Docker networking and reverse proxies)
 ENV HOSTNAME=0.0.0.0
 
-# Copy built frontend from builder stage
+# Copy built frontend from builder stage.
+# Next.js standalone output nests the app under /app/frontend/frontend,
+# so static assets and public files must live alongside that server tree.
 COPY --from=builder /app/frontend/.next/standalone /app/frontend/
-COPY --from=builder /app/frontend/.next/static /app/frontend/.next/static
-COPY --from=builder /app/frontend/public /app/frontend/public
+COPY --from=builder /app/frontend/.next/static /app/frontend/frontend/.next/static
+COPY --from=builder /app/frontend/public /app/frontend/frontend/public
 COPY --from=builder /app/frontend/start-server.js /app/frontend/start-server.js
 
 # Expose ports for Frontend and API

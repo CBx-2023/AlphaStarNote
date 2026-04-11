@@ -1,0 +1,12 @@
+-- Migration 14: Create user table for multi-tenant authentication
+DEFINE TABLE IF NOT EXISTS user SCHEMAFULL;
+DEFINE FIELD IF NOT EXISTS email ON TABLE user TYPE string;
+DEFINE FIELD IF NOT EXISTS hashed_password ON TABLE user TYPE string;
+DEFINE FIELD IF NOT EXISTS role ON TABLE user TYPE string DEFAULT 'member';
+DEFINE FIELD IF NOT EXISTS is_active ON TABLE user TYPE bool DEFAULT true;
+DEFINE FIELD IF NOT EXISTS is_superuser ON TABLE user TYPE bool DEFAULT false;
+DEFINE FIELD IF NOT EXISTS is_verified ON TABLE user TYPE bool DEFAULT false;
+DEFINE FIELD IF NOT EXISTS display_name ON TABLE user TYPE option<string>;
+DEFINE FIELD IF NOT EXISTS created ON TABLE user DEFAULT time::now() VALUE $before OR time::now();
+DEFINE FIELD IF NOT EXISTS updated ON TABLE user DEFAULT time::now() VALUE time::now();
+DEFINE INDEX IF NOT EXISTS user_email ON TABLE user COLUMNS email UNIQUE;

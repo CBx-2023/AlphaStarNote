@@ -683,3 +683,55 @@ class NotebookDeleteResponse(BaseModel):
     unlinked_sources: int = Field(
         ..., description="Number of sources unlinked from notebook"
     )
+
+
+class InteractiveClassroomSummaryRequest(BaseModel):
+    title: Optional[str] = Field(None, description="Optional note title")
+    content: str = Field(..., description="Note content to summarize")
+    language: Optional[str] = Field(
+        "zh-CN", description="Target language for classroom generation"
+    )
+
+
+class InteractiveClassroomSummaryResponse(BaseModel):
+    summary: str = Field(..., description="Summarized classroom requirement")
+    cleaned_content: str = Field(
+        ..., description="Note content after draw.io payload cleanup"
+    )
+    language: str = Field(..., description="Normalized language sent downstream")
+
+
+class InteractiveClassroomJobCreateRequest(BaseModel):
+    summary: str = Field(..., description="User-confirmed classroom requirement")
+    original_content: str = Field(
+        ..., description="Original note content used as classroom context"
+    )
+    language: Optional[str] = Field(
+        "zh-CN", description="Target language for classroom generation"
+    )
+
+
+class InteractiveClassroomJobCreateResponse(BaseModel):
+    job_id: str = Field(..., description="OpenMAIC job ID")
+    status: str = Field(..., description="Current job status")
+    step: Optional[str] = Field(None, description="Current processing step")
+    message: Optional[str] = Field(None, description="User-facing progress message")
+    progress: Optional[float] = Field(None, description="Job progress percentage")
+    done: bool = Field(False, description="Whether the job is complete")
+    result_url: Optional[str] = Field(
+        None, description="Generated classroom URL, when available"
+    )
+    error: Optional[str] = Field(None, description="Job error, when present")
+
+
+class InteractiveClassroomJobStatusResponse(BaseModel):
+    job_id: str = Field(..., description="OpenMAIC job ID")
+    status: str = Field(..., description="Current job status")
+    step: Optional[str] = Field(None, description="Current processing step")
+    message: Optional[str] = Field(None, description="User-facing progress message")
+    progress: Optional[float] = Field(None, description="Job progress percentage")
+    done: bool = Field(False, description="Whether the job is complete")
+    result_url: Optional[str] = Field(
+        None, description="Generated classroom URL, when available"
+    )
+    error: Optional[str] = Field(None, description="Job error, when present")

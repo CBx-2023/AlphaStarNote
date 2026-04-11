@@ -6,4 +6,4 @@ if (!process.env.PORT) {
 }
 
 // Start the Next.js standalone server
-require('./.next/standalone/server.js');
+require('./frontend/server.js');

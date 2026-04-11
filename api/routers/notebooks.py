@@ -1,8 +1,11 @@
 from typing import List, Optional
+import inspect
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from loguru import logger
 
+from api.auth import get_optional_current_user
+from api.user_db import User
 from api.models import (
     NotebookCreate,
     NotebookDeletePreview,
@@ -17,10 +20,30 @@ from open_notebook.exceptions import InvalidInputError
 router = APIRouter()
 
 
+def _is_admin(user: Optional[User]) -> bool:
+    return bool(user and getattr(user, "role", None) == "admin")
+
+
+def _is_owned_by_current_user(owner: Optional[str], current_user: Optional[User]) -> bool:
+    if not current_user or _is_admin(current_user):
+        return True
+    if not owner:
+        return True
+    return str(owner) == str(current_user.id)
+
+
+async def _resolve_notebook(notebook_id: str):
+    notebook_result = Notebook.get(notebook_id)
+    if inspect.isawaitable(notebook_result):
+        return await notebook_result
+    return notebook_result
+
+
 @router.get("/notebooks", response_model=List[NotebookResponse])
 async def get_notebooks(
     archived: Optional[bool] = Query(None, description="Filter by archived status"),
     order_by: str = Query("updated desc", description="Order by field and direction"),
+    current_user: Optional[User] = Depends(get_optional_current_user),
 ):
     """Get all notebooks with optional filtering and ordering."""
     try:
@@ -38,6 +61,13 @@ async def get_notebooks(
         # Filter by archived status if specified
         if archived is not None:
             result = [nb for nb in result if nb.get("archived") == archived]
+
+        if current_user and not _is_admin(current_user):
+            result = [
+                nb
+                for nb in result
+                if _is_owned_by_current_user(nb.get("owner"), current_user)
+            ]
 
         return [
             NotebookResponse(
@@ -118,9 +148,19 @@ async def get_notebook_delete_preview(notebook_id: str):
 
 
 @router.get("/notebooks/{notebook_id}", response_model=NotebookResponse)
-async def get_notebook(notebook_id: str):
+async def get_notebook(
+    notebook_id: str,
+    current_user: Optional[User] = Depends(get_optional_current_user),
+):
     """Get a specific notebook by ID."""
     try:
+        notebook = await _resolve_notebook(notebook_id)
+        if not notebook:
+            raise HTTPException(status_code=404, detail="Notebook not found")
+
+        if not _is_owned_by_current_user(getattr(notebook, "owner", None), current_user):
+            raise HTTPException(status_code=404, detail="Notebook not found")
+
         # Query with counts for single notebook
         query = """
             SELECT *,
@@ -134,6 +174,8 @@ async def get_notebook(notebook_id: str):
             raise HTTPException(status_code=404, detail="Notebook not found")
 
         nb = result[0]
+        if not _is_owned_by_current_user(nb.get("owner"), current_user):
+            raise HTTPException(status_code=404, detail="Notebook not found")
         return NotebookResponse(
             id=str(nb.get("id", "")),
             name=nb.get("name", ""),

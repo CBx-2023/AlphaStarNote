@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
-import { ArrowLeft, Save, Check, PenTool, Bot } from 'lucide-react'
+import { ArrowLeft, Save, Check, PenTool, Bot, GraduationCap } from 'lucide-react'
 import { useNote, useUpdateNote, useDeleteNote } from '@/lib/hooks/use-notes'
 import { notesApi } from '@/lib/api/notes'
 import { useTranslation } from '@/lib/hooks/use-translation'
@@ -16,10 +16,15 @@ import { ConfirmDialog } from '@/components/common/ConfirmDialog'
 import { KeyboardShortcuts } from '@/components/common/KeyboardShortcuts'
 import { AppShell } from '@/components/layout/AppShell'
 import { ChatColumn } from '@/app/(dashboard)/notebooks/components/ChatColumn'
+import { InteractiveClassroomPanel } from '@/components/notebooks/InteractiveClassroomPanel'
+import { InteractiveClassroomSummaryDialog } from '@/components/notebooks/InteractiveClassroomSummaryDialog'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { LoadingSpinner } from '@/components/common/LoadingSpinner'
+import { useInteractiveClassroom } from '@/lib/hooks/use-interactive-classroom'
 import { extractDrawioXml, embedDrawioXml } from '@/lib/utils/drawio'
+
+type PanelMode = 'none' | 'drawio' | 'chat' | 'interactiveClassroom'
 
 export default function EditNotePage() {
     const params = useParams<{ id: string; noteId: string }>()
@@ -38,14 +43,33 @@ export default function EditNotePage() {
     const [showUnsavedDialog, setShowUnsavedDialog] = useState(false)
     const [showDeleteDialog, setShowDeleteDialog] = useState(false)
     const [pendingNavigation, setPendingNavigation] = useState<string | null>(null)
-    const [showDrawio, setShowDrawio] = useState(false)
-    const [showChat, setShowChat] = useState(false)
+    const [activePanel, setActivePanel] = useState<PanelMode>('none')
     const [splitDirection, setSplitDirection] = useState<SplitDirection>('vertical')
     const [drawioXml, setDrawioXml] = useState('')
 
     // Default context selections for ChatColumn
     const defaultContextSelections = { sources: {} as Record<string, 'off' | 'insights' | 'full'>, notes: {} as Record<string, 'off' | 'insights' | 'full'> }
     const editorRef = useRef<MarkdownEditorRef>(null)
+    const {
+        copy: interactiveCopy,
+        hasSendableContent,
+        hasSession: hasInteractiveClassroomSession,
+        iframeKey,
+        isCreatingJob,
+        isGeneratingSummary,
+        isSummaryDialogOpen,
+        interactiveClassroomEmbedState,
+        interactiveClassroomJob,
+        interactiveClassroomUrl,
+        markEmbedLoaded,
+        openInNewTab,
+        retryEmbed,
+        setIsSummaryDialogOpen,
+        setSummaryDraft,
+        startSummaryGeneration,
+        submitSummary,
+        summaryDraft,
+    } = useInteractiveClassroom({ title, content })
 
     // Initialize editor with note data
     useEffect(() => {
@@ -153,6 +177,30 @@ export default function EditNotePage() {
         navigateBack()
     }, [noteId, deleteNoteMutation, navigateBack])
 
+    const handleInteractiveClassroomClick = useCallback(async () => {
+        if (activePanel !== 'interactiveClassroom' && hasInteractiveClassroomSession) {
+            setActivePanel('interactiveClassroom')
+            return
+        }
+
+        setActivePanel('interactiveClassroom')
+        await startSummaryGeneration()
+    }, [activePanel, hasInteractiveClassroomSession, startSummaryGeneration])
+
+    const renderEditor = (editorKey?: string) => (
+        <div className="h-full px-6 pb-4">
+            <MarkdownEditor
+                ref={editorRef}
+                key={editorKey}
+                value={content}
+                onChange={(v) => setContent(v ?? '')}
+                placeholder={t.sources.writeNotePlaceholder}
+                height={500}
+                className="h-full [&_.milkdown-editor-wrapper]:h-full"
+            />
+        </div>
+    )
+
     if (isLoading) {
         return (
             <AppShell>
@@ -210,22 +258,32 @@ export default function EditNotePage() {
                             {t.common.save}
                         </Button>
                         <Button
-                            variant={showDrawio ? 'secondary' : 'outline'}
+                            variant={activePanel === 'drawio' ? 'secondary' : 'outline'}
                             size="sm"
-                            onClick={() => { setShowDrawio(!showDrawio); if (!showDrawio) setShowChat(false) }}
+                            onClick={() => setActivePanel((currentPanel) => currentPanel === 'drawio' ? 'none' : 'drawio')}
                             title="绘图"
                         >
                             <PenTool className="mr-1 h-4 w-4" />
                             绘图
                         </Button>
                         <Button
-                            variant={showChat ? 'secondary' : 'outline'}
+                            variant={activePanel === 'chat' ? 'secondary' : 'outline'}
                             size="sm"
-                            onClick={() => { setShowChat(!showChat); if (!showChat) setShowDrawio(false) }}
+                            onClick={() => setActivePanel((currentPanel) => currentPanel === 'chat' ? 'none' : 'chat')}
                             title="AI 对话"
                         >
                             <Bot className="mr-1 h-4 w-4" />
                             AI
+                        </Button>
+                        <Button
+                            variant={activePanel === 'interactiveClassroom' ? 'secondary' : 'outline'}
+                            size="sm"
+                            onClick={() => void handleInteractiveClassroomClick()}
+                            disabled={(!hasSendableContent && !hasInteractiveClassroomSession) || isGeneratingSummary || isCreatingJob}
+                            title={interactiveCopy.buttonTitle}
+                        >
+                            <GraduationCap className="mr-1 h-4 w-4" />
+                            {interactiveCopy.buttonLabel}
                         </Button>
                         <Button
                             variant="destructive"
@@ -266,52 +324,30 @@ export default function EditNotePage() {
                         <div className="flex items-center justify-center h-full">
                             <LoadingSpinner />
                         </div>
-                    ) : showDrawio ? (
+                    ) : activePanel === 'drawio' ? (
                         <ResizablePanel
+                            key={activePanel}
                             direction={splitDirection}
                             onDirectionChange={setSplitDirection}
                             className="h-full"
-                            first={
-                                <div className="h-full px-6 pb-4">
-                                    <MarkdownEditor
-                                        ref={editorRef}
-                                        key={noteId}
-                                        value={content}
-                                        onChange={(v) => setContent(v ?? '')}
-                                        placeholder={t.sources.writeNotePlaceholder}
-                                        height={500}
-                                        className="h-full [&_.milkdown-editor-wrapper]:h-full"
-                                    />
-                                </div>
-                            }
+                            first={renderEditor(noteId)}
                             second={
                                 <DrawioEditor
                                     initialXml={drawioXml}
                                     onSave={handleDrawioSave}
-                                    onExit={() => setShowDrawio(false)}
+                                    onExit={() => setActivePanel('none')}
                                     className="h-full"
                                 />
                             }
                         />
-                    ) : showChat ? (
+                    ) : activePanel === 'chat' ? (
                         <ResizablePanel
+                            key={activePanel}
                             direction={splitDirection}
                             onDirectionChange={setSplitDirection}
                             className="h-full"
                             defaultRatio={0.6}
-                            first={
-                                <div className="h-full px-6 pb-4">
-                                    <MarkdownEditor
-                                        ref={editorRef}
-                                        key={noteId}
-                                        value={content}
-                                        onChange={(v) => setContent(v ?? '')}
-                                        placeholder={t.sources.writeNotePlaceholder}
-                                        height={500}
-                                        className="h-full [&_.milkdown-editor-wrapper]:h-full"
-                                    />
-                                </div>
-                            }
+                            first={renderEditor(noteId)}
                             second={
                                 <div className="h-full overflow-hidden">
                                     <ChatColumn
@@ -321,18 +357,33 @@ export default function EditNotePage() {
                                 </div>
                             }
                         />
+                    ) : activePanel === 'interactiveClassroom' ? (
+                        <ResizablePanel
+                            key={activePanel}
+                            direction={splitDirection}
+                            onDirectionChange={setSplitDirection}
+                            className="h-full"
+                            defaultRatio={0.55}
+                            first={renderEditor(noteId)}
+                            second={
+                                <div className="h-full overflow-hidden">
+                                    <InteractiveClassroomPanel
+                                        copy={interactiveCopy}
+                                        iframeKey={iframeKey}
+                                        job={interactiveClassroomJob}
+                                        url={interactiveClassroomUrl}
+                                        embedState={interactiveClassroomEmbedState}
+                                        onClose={() => setActivePanel('none')}
+                                        onIframeLoad={markEmbedLoaded}
+                                        onOpenInNewTab={openInNewTab}
+                                        onReload={retryEmbed}
+                                        onRetryEmbed={retryEmbed}
+                                    />
+                                </div>
+                            }
+                        />
                     ) : (
-                        <div className="h-full px-6 pb-6">
-                            <MarkdownEditor
-                                ref={editorRef}
-                                key={noteId}
-                                value={content}
-                                onChange={(v) => setContent(v ?? '')}
-                                placeholder={t.sources.writeNotePlaceholder}
-                                height={500}
-                                className="h-full [&_.milkdown-editor-wrapper]:h-full"
-                            />
-                        </div>
+                        renderEditor(noteId)
                     )}
                 </div>
             </div>
@@ -355,6 +406,21 @@ export default function EditNotePage() {
                 confirmVariant="destructive"
                 onConfirm={handleDelete}
                 isLoading={deleteNoteMutation.isPending}
+            />
+
+            <InteractiveClassroomSummaryDialog
+                open={isSummaryDialogOpen}
+                summary={summaryDraft}
+                isGeneratingSummary={isGeneratingSummary}
+                isSubmitting={isCreatingJob}
+                copy={interactiveCopy}
+                onOpenChange={(open) => {
+                    if (!isGeneratingSummary && !isCreatingJob) {
+                        setIsSummaryDialogOpen(open)
+                    }
+                }}
+                onSummaryChange={setSummaryDraft}
+                onSubmit={() => void submitSummary()}
             />
         </AppShell>
     )

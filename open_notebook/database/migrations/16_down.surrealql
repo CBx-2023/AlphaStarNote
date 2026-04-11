@@ -1,0 +1,4 @@
+REMOVE FIELD owner ON TABLE notebook;
+REMOVE FIELD owner ON TABLE source;
+REMOVE FIELD owner ON TABLE note;
+REMOVE FIELD owner ON TABLE chat_session;

@@ -1,0 +1,2 @@
+-- Migration 14 down: Drop user table
+REMOVE TABLE user;
