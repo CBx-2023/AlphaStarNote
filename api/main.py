@@ -108,8 +108,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(
-    title="Open Notebook API",
-    description="API for Open Notebook - Research Assistant",
+    title="AlphaStarNote API",
+    description="API for AlphaStarNote - Research Assistant",
     lifespan=lifespan,
 )
 
@@ -279,7 +279,7 @@ app.include_router(credentials.router, prefix="/api", tags=["credentials"])
 
 @app.get("/")
 async def root():
-    return {"message": "Open Notebook API is running"}
+    return {"message": "AlphaStarNote API is running"}
 
 
 @app.get("/health")

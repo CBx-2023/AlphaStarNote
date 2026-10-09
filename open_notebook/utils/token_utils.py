@@ -1,5 +1,5 @@
 """
-Token utilities for Open Notebook.
+Token utilities for AlphaStarNote.
 Handles token counting and cost calculations for language models.
 """
 

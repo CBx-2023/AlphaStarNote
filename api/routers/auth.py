@@ -1,5 +1,5 @@
 """
-Authentication router for Open Notebook API.
+Authentication router for AlphaStarNote API.
 Provides endpoints for JWT-based login, registration, and current-user lookup.
 """
 
