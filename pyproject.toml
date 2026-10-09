@@ -1,9 +1,9 @@
 [project]
-name = "open-notebook"
+name = "alphastarnote"
 version = "1.7.4"
-description = "An open source implementation of a research assistant, inspired by Google Notebook LM"
+description = "AlphaStarNote - an intelligent note-taking platform with KG + LLM fused reasoning, forked from open-notebook"
 authors = [
-    {name = "Luis Novo", email = "lfnovo@gmail.com"}
+    {name = "CBx-2023", email = "3066230533@qq.com"}
 ]
 readme = "README.md"
 classifiers = [
