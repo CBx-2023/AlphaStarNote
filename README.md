@@ -1,358 +1,239 @@
-<a id="readme-top"></a>
-
-<!-- [![Contributors][contributors-shield]][contributors-url] -->
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-<!-- [![LinkedIn][linkedin-shield]][linkedin-url] -->
-
-
-<!-- PROJECT LOGO -->
-<br />
 <div align="center">
-  <a href="https://github.com/lfnovo/open-notebook">
-    <img src="docs/assets/hero.svg" alt="Logo">
-  </a>
 
-  <h3 align="center">Open Notebook</h3>
+# AlphaStarNote
 
-  <p align="center">
-    An open source, privacy-focused alternative to Google's Notebook LM!
-    <br /><strong>Join our <a href="https://discord.gg/37XJPXfz2w">Discord server</a> for help, to share workflow ideas, and suggest features!</strong>
-    <br />
-    <a href="https://www.open-notebook.ai"><strong>Checkout our website »</strong></a>
-    <br />
-    <br />
-    <a href="docs/0-START-HERE/index.md">📚 Get Started</a>
-    ·
-    <a href="docs/3-USER-GUIDE/index.md">📖 User Guide</a>
-    ·
-    <a href="docs/2-CORE-CONCEPTS/index.md">✨ Features</a>
-    ·
-    <a href="docs/1-INSTALLATION/index.md">🚀 Deploy</a>
-  </p>
+**阿尔法星笔记 — 基于 KG + LLM 融合推理的智能笔记与可视化平台**
+
+多端知识管理 · 融合推理 · 知识图谱可视化 · 活跃社区
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://www.python.org/downloads/)
+[![Next.js 16](https://img.shields.io/badge/Next.js-16-black.svg)](https://nextjs.org/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.104%2B-009688.svg)](https://fastapi.tiangolo.com/)
+
 </div>
 
-<p align="center">
-<a href="https://trendshift.io/repositories/14536" target="_blank"><img src="https://trendshift.io/api/badge/repositories/14536" alt="lfnovo%2Fopen-notebook | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</p>
-
-<div align="center">
-  <!-- Keep these links. Translations will automatically update with the README. -->
-  <a href="https://zdoc.app/de/lfnovo/open-notebook">Deutsch</a> | 
-  <a href="https://zdoc.app/es/lfnovo/open-notebook">Español</a> | 
-  <a href="https://zdoc.app/fr/lfnovo/open-notebook">français</a> | 
-  <a href="https://zdoc.app/ja/lfnovo/open-notebook">日本語</a> | 
-  <a href="https://zdoc.app/ko/lfnovo/open-notebook">한국어</a> | 
-  <a href="https://zdoc.app/pt/lfnovo/open-notebook">Português</a> | 
-  <a href="https://zdoc.app/ru/lfnovo/open-notebook">Русский</a> | 
-  <a href="https://zdoc.app/zh/lfnovo/open-notebook">中文</a>
-</div>
-
-## A private, multi-model, 100% local, full-featured alternative to Notebook LM
-
-![New Notebook](docs/assets/asset_list.png)
-
-In a world dominated by Artificial Intelligence, having the ability to think 🧠 and acquire new knowledge 💡, is a skill that should not be a privilege for a few, nor restricted to a single provider.
-
-**Open Notebook empowers you to:**
-- 🔒 **Control your data** - Keep your research private and secure
-- 🤖 **Choose your AI models** - Support for 16+ providers including OpenAI, Anthropic, Ollama, LM Studio, and more
-- 📚 **Organize multi-modal content** - PDFs, videos, audio, web pages, and more
-- 🎙️ **Generate professional podcasts** - Advanced multi-speaker podcast generation
-- 🔍 **Search intelligently** - Full-text and vector search across all your content
-- 💬 **Chat with context** - AI conversations powered by your research
-- 🌐 **Multi-language UI** - English, Portuguese, Chinese (Simplified & Traditional), Japanese, and Russian support
-
-Learn more about our project at [https://www.open-notebook.ai](https://www.open-notebook.ai)
-
 ---
 
-## 🆚 Open Notebook vs Google Notebook LM
+## 这是什么
 
-| Feature | Open Notebook | Google Notebook LM | Advantage |
-|---------|---------------|--------------------|-----------|
-| **Privacy & Control** | Self-hosted, your data | Google cloud only | Complete data sovereignty |
-| **AI Provider Choice** | 16+ providers (OpenAI, Anthropic, Ollama, LM Studio, etc.) | Google models only | Flexibility and cost optimization |
-| **Podcast Speakers** | 1-4 speakers with custom profiles | 2 speakers only | Extreme flexibility |
-| **Content Transformations** | Custom and built-in | Limited options | Unlimited processing power |
-| **API Access** | Full REST API | No API | Complete automation |
-| **Deployment** | Docker, cloud, or local | Google hosted only | Deploy anywhere |
-| **Citations** | Basic references (will improve) | Comprehensive with sources | Research integrity |
-| **Customization** | Open source, fully customizable | Closed system | Unlimited extensibility |
-| **Cost** | Pay only for AI usage | Free tier + Monthly subscription | Transparent and controllable |
+AlphaStarNote 是一款自托管的智能笔记应用：上传多模态资料（PDF、网页、音视频等），自动提取、向量化、建立知识图谱，然后基于图谱与 LLM 的**融合推理**来问答、生成笔记、产出播客与可视化图表。
 
-**Why Choose Open Notebook?**
-- 🔒 **Privacy First**: Your sensitive research stays completely private
-- 💰 **Cost Control**: Choose cheaper AI providers or run locally with Ollama
-- 🎙️ **Better Podcasts**: Full script control and multi-speaker flexibility vs limited 2-speaker deep-dive format
-- 🔧 **Unlimited Customization**: Modify, extend, and integrate as needed
-- 🌐 **No Vendor Lock-in**: Switch providers, deploy anywhere, own your data
+与纯向量检索方案不同，本项目在检索层同时利用**知识图谱结构**与**语义向量**，让回答既能命中语义相近的内容，也能沿实体关系做多跳推理 —— 这是"KG + LLM 融合推理"的核心。
 
-### Built With
+## 与上游的关系
 
-[![Python][Python]][Python-url] [![Next.js][Next.js]][Next-url] [![React][React]][React-url] [![SurrealDB][SurrealDB]][SurrealDB-url] [![LangChain][LangChain]][LangChain-url]
+本项目是基于开源项目 **[open-notebook](https://github.com/lfnovo/open-notebook)**（作者 Luis Novo，MIT 许可）的二次开发分支，在上游基础上做了面向产品化的定制（见下方[与上游的差异](#与上游的差异)）。
 
-## 🚀 Quick Start (2 Minutes)
+- 上游仓库：https://github.com/lfnovo/open-notebook
+- 上游文档：本仓库 `docs/` 目录保留了上游完整文档（安装、配置、AI 供应商等），大部分内容对本项目仍然适用
+- 许可证：沿用 MIT，上游版权声明完整保留于 [LICENSE](LICENSE)
 
-### Prerequisites
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed
-- That's it! (API keys configured later in the UI)
+## 核心功能
 
-### Step 1: Get docker-compose.yml
+| 功能 | 说明 |
+|---|---|
+| **多模态资料导入** | 支持 50+ 文件类型与网页链接，自动抽取正文与元数据 |
+| **KG + LLM 融合推理** | 知识图谱结构与语义向量联合检索，支持多跳推理 |
+| **语义搜索** | SurrealDB 内置向量检索，跨全部资料 |
+| **对话问答** | 基于 LangGraph 的多轮对话，可指定资料来源范围 |
+| **智能笔记与转换** | 自定义 Transformation 提示词，批量生成结构化笔记 |
+| **播客生成** | 从资料自动生成双人对谈播客（异步任务队列） |
+| **多 AI 供应商** | 通过 Esperanto 统一接入 OpenAI、Anthropic、Google、Groq、Mistral、DeepSeek、xAI、Ollama 等 |
+| **多租户与鉴权** | 独立账号体系，资料按用户隔离（见下） |
 
-**Option A:** Download directly
+## 与上游的差异
+
+本项目相对上游的主要定制：
+
+### 1. 多租户鉴权体系
+
+上游仅有开发用的简单口令中间件；本项目实现了完整的自有账号体系：
+
+- JWT 账号认证（`api/auth.py`、`api/routers/auth.py`）
+- 用户表与角色模型，支持 `member` / 管理员角色（`api/user_db.py`、`api/user_manager.py`）
+- 管理后台接口（`api/routers/admin.py`）
+- 数据库迁移 **14 / 15 / 16**：新增 `user` 表，并为核心业务表（`notebook`、`source`、`note`、`chat_session`）加上 `owner` 字段与索引，实现按用户的数据隔离
+- 历史数据归属迁移脚本：`scripts/migrate_owners.py`
+
+相关环境变量（前缀 `ALPHA_NOTE_`）：`ALPHA_NOTE_JWT_SECRET`、`ALPHA_NOTE_ADMIN_EMAIL`、`ALPHA_NOTE_ADMIN_PASSWORD`、`ALPHA_NOTE_REGISTRATION_MODE`。
+
+### 2. 交互网课内嵌
+
+在笔记页内嵌交互式网课生成能力（`api/routers/interactive_classroom.py` + 前端 `InteractiveClassroomPanel`）：
+
+- 基于笔记内容提交网课生成任务，走**异步任务 + 轮询**模式（默认对接 `https://open.maic.chat`，可用 `OPENMAIC_BASE_URL` 覆盖）
+- 生成结果中的 drawio 图表会被解析并注入笔记（`<!-- drawio:start -->` / `<!-- drawio:end -->` 块）
+
+### 3. 部署与跨平台修复
+
+- `Dockerfile` / `supervisord.conf` / `scripts/wait-for-api.sh` 的启动流程修复
+- 修复了交互网课任务轮询的超时误判
+
+## 技术架构
+
+```
+┌─────────────────────────────────────────────────────┐
+│           前端  Next.js 16 (React 19)               │
+│                   :3000                             │
+│  Zustand · TanStack Query · Tailwind · shadcn/ui    │
+└───────────────────────┬─────────────────────────────┘
+                        │ HTTP REST（开发期经 /api/* 代理）
+┌───────────────────────▼─────────────────────────────┐
+│              后端  FastAPI                          │
+│                   :5055                             │
+│  LangGraph 工作流 · Esperanto 多供应商 · surreal-commands │
+└───────────────────────┬─────────────────────────────┘
+                        │ SurrealQL
+┌───────────────────────▼─────────────────────────────┐
+│          数据库  SurrealDB                          │
+│                   :8000                             │
+│  图数据 + 向量索引 · 启动时自动迁移                  │
+└─────────────────────────────────────────────────────┘
+```
+
+- **后端**：Python 3.11+ / FastAPI / Pydantic v2 / Loguru；工作流用 LangGraph；AI 供应商经 Esperanto 统一接入；异步任务用 surreal-commands
+- **前端**：Next.js 16 + TypeScript，Webpack(Turbopack) 构建，i18n 兼容（改动需同步翻译键）
+- **数据库**：SurrealDB 图数据库，API 启动时由 `AsyncMigrationManager` 自动执行迁移
+
+## 快速开始
+
+### 前置要求
+
+- Docker（跑数据库）
+- Python 3.11 或 3.12
+- Node.js 20+
+- [uv](https://docs.astral.sh/uv/)（可选，用于依赖管理）
+
+### 1. 启动数据库
+
 ```bash
-curl -o docker-compose.yml https://raw.githubusercontent.com/lfnovo/open-notebook/main/docker-compose.yml
+docker compose up -d surrealdb
 ```
 
-**Option B:** Create the file manually
-Copy this into a new file called `docker-compose.yml`:
+### 2. 配置环境变量
 
-```yaml
-services:
-  surrealdb:
-    image: surrealdb/surrealdb:v2
-    command: start --log info --user root --pass root rocksdb:/mydata/mydatabase.db
-    user: root
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./surreal_data:/mydata
-    restart: always
+复制模板并修改。**注意数据库地址**：若 API 在宿主机直跑（非容器内），必须用 `localhost`：
 
-  open_notebook:
-    image: lfnovo/open_notebook:v1-latest
-    ports:
-      - "8502:8502"
-      - "5055:5055"
-    environment:
-      - OPEN_NOTEBOOK_ENCRYPTION_KEY=change-me-to-a-secret-string
-      - SURREAL_URL=ws://surrealdb:8000/rpc
-      - SURREAL_USER=root
-      - SURREAL_PASSWORD=root
-    volumes:
-      - ./notebook_data:/app/data
-    depends_on:
-      - surrealdb
-    restart: always
-```
-
-### Step 2: Set Your Encryption Key
-
-Edit `docker-compose.yml` and change this line:
-```yaml
-- OPEN_NOTEBOOK_ENCRYPTION_KEY=change-me-to-a-secret-string
-```
-to any secret value (e.g., `my-super-secret-key-123`)
-
-### Step 3: Start Services
 ```bash
-docker compose up -d
+cp docker.env.example .env
 ```
 
-Wait 15-20 seconds, then open: **http://localhost:8502**
+`.env` 关键项：
 
-### Step 4: Configure AI Provider
-1. Go to **Settings** → **API Keys**
-2. Click **Add Credential**
-3. Choose your provider (OpenAI, Anthropic, Google, etc.)
-4. Paste your API key and click **Save**
-5. Click **Test Connection** → **Discover Models** → **Register Models**
+```ini
+# 必填：加密数据库中存储的 API 密钥
+OPEN_NOTEBOOK_ENCRYPTION_KEY=change-me-to-a-secret-string
+# 必填：JWT 签名密钥（生产环境务必改成强随机串）
+ALPHA_NOTE_JWT_SECRET=change-me-to-a-jwt-secret
+# 首次启动自动创建的管理员账号
+ALPHA_NOTE_ADMIN_EMAIL=admin@localhost
+ALPHA_NOTE_ADMIN_PASSWORD=changeme
+ALPHA_NOTE_REGISTRATION_MODE=open
 
-Done! You're ready to create your first notebook.
+# API 直跑时用 localhost；docker compose 内跑则用 surrealdb
+SURREAL_URL=ws://localhost:8000/rpc
+SURREAL_USER=root
+SURREAL_PASSWORD=root
+SURREAL_NAMESPACE=open_notebook
+SURREAL_DATABASE=open_notebook
+```
 
-> **Need an API key?** Get one from:
-> [OpenAI](https://platform.openai.com/api-keys) · [Anthropic](https://console.anthropic.com/) · [Google](https://aistudio.google.com/) · [Groq](https://console.groq.com/) (free tier)
+> `.env` 已被 `.gitignore` 忽略，不会被提交。
 
-> **Want free local AI?** See [examples/docker-compose-ollama.yml](examples/) for Ollama setup
+### 3. 安装依赖
 
----
+```bash
+uv sync                     # 或 pip install -e .
+cd frontend && npm install && cd ..
+```
 
-### 📚 More Installation Options
+### 4. 启动 API
 
-- **[With Ollama (Free Local AI)](examples/docker-compose-ollama.yml)** - Run models locally without API costs
-- **[From Source (Developers)](docs/1-INSTALLATION/from-source.md)** - For development and contributions
-- **[Complete Installation Guide](docs/1-INSTALLATION/index.md)** - All deployment scenarios
+```bash
+uv run run_api.py           # 或 .venv/Scripts/python run_api.py (Windows)
+```
 
----
+首次启动会自动执行数据库迁移。看到 `API initialization completed successfully` 即为就绪，验证：
 
-### 📖 Need Help?
+```bash
+curl http://localhost:5055/health     # {"status":"healthy"}
+```
 
-- **🤖 AI Installation Assistant**: [CustomGPT to help you install](https://chatgpt.com/g/g-68776e2765b48191bd1bae3f30212631-open-notebook-installation-assistant)
-- **🆘 Troubleshooting**: [5-minute troubleshooting guide](docs/6-TROUBLESHOOTING/quick-fixes.md)
-- **💬 Community Support**: [Discord Server](https://discord.gg/37XJPXfz2w)
-- **🐛 Report Issues**: [GitHub Issues](https://github.com/lfnovo/open-notebook/issues)
+接口文档：http://localhost:5055/docs
 
----
+### 5. 启动后台 worker
 
-## Star History
+处理嵌入、播客等异步任务（不启动则相关功能会一直排队）：
 
-[![Star History Chart](https://api.star-history.com/svg?repos=lfnovo/open-notebook&type=date&legend=top-left)](https://www.star-history.com/#lfnovo/open-notebook&type=date&legend=top-left)
+```bash
+uv run surreal-commands-worker --import-modules commands
+```
 
+> **Windows 用户必读**：该 worker 会通过 rich 打印含 emoji 的日志，在 GBK 代码页下会直接崩溃（`UnicodeEncodeError: 'gbk' codec can't encode character '✅'`）。必须加 UTF-8 模式启动：
+>
+> ```bash
+> PYTHONUTF8=1 PYTHONIOENCODING=utf-8 uv run surreal-commands-worker --import-modules commands
+> ```
 
-## Provider Support Matrix
+### 6. 启动前端
 
-Thanks to the [Esperanto](https://github.com/lfnovo/esperanto) library, we support this providers out of the box!
+```bash
+cd frontend && npm run dev
+```
 
-| Provider     | LLM Support | Embedding Support | Speech-to-Text | Text-to-Speech |
-|--------------|-------------|------------------|----------------|----------------|
-| OpenAI       | ✅          | ✅               | ✅             | ✅             |
-| Anthropic    | ✅          | ❌               | ❌             | ❌             |
-| Groq         | ✅          | ❌               | ✅             | ❌             |
-| Google (GenAI) | ✅          | ✅               | ❌             | ✅             |
-| Vertex AI    | ✅          | ✅               | ❌             | ✅             |
-| Ollama       | ✅          | ✅               | ❌             | ❌             |
-| Perplexity   | ✅          | ❌               | ❌             | ❌             |
-| ElevenLabs   | ❌          | ❌               | ✅             | ✅             |
-| Azure OpenAI | ✅          | ✅               | ❌             | ❌             |
-| Mistral      | ✅          | ✅               | ❌             | ❌             |
-| DeepSeek     | ✅          | ❌               | ❌             | ❌             |
-| Voyage       | ❌          | ✅               | ❌             | ❌             |
-| xAI          | ✅          | ❌               | ❌             | ❌             |
-| OpenRouter   | ✅          | ❌               | ❌             | ❌             |
-| OpenAI Compatible* | ✅          | ❌               | ❌             | ❌             |
+打开 **http://localhost:3000** —— 这就是应用首页（会自动跳转到 `/notebooks`）。
 
-*Supports LM Studio and any OpenAI-compatible endpoint
+### 端口一览
 
-## ✨ Key Features
+| 端口 | 服务 | 用途 |
+|---|---|---|
+| **3000** | Next.js 前端 | 浏览器访问入口 |
+| 5055 | FastAPI 后端 | REST API 与 `/docs` |
+| 8000 | SurrealDB | 数据库（内部使用） |
 
-### Core Capabilities
-- **🔒 Privacy-First**: Your data stays under your control - no cloud dependencies
-- **🎯 Multi-Notebook Organization**: Manage multiple research projects seamlessly
-- **📚 Universal Content Support**: PDFs, videos, audio, web pages, Office docs, and more
-- **🤖 Multi-Model AI Support**: 16+ providers including OpenAI, Anthropic, Ollama, Google, LM Studio, and more
-- **🎙️ Professional Podcast Generation**: Advanced multi-speaker podcasts with Episode Profiles
-- **🔍 Intelligent Search**: Full-text and vector search across all your content
-- **💬 Context-Aware Chat**: AI conversations powered by your research materials
-- **📝 AI-Assisted Notes**: Generate insights or write notes manually
+## 目录结构
 
-### Advanced Features
-- **⚡ Reasoning Model Support**: Full support for thinking models like DeepSeek-R1 and Qwen3
-- **🔧 Content Transformations**: Powerful customizable actions to summarize and extract insights
-- **🌐 Comprehensive REST API**: Full programmatic access for custom integrations [![API Docs](https://img.shields.io/badge/API-Documentation-blue?style=flat-square)](http://localhost:5055/docs)
-- **🔐 Optional Password Protection**: Secure public deployments with authentication
-- **📊 Fine-Grained Context Control**: Choose exactly what to share with AI models
-- **📎 Citations**: Get answers with proper source citations
+```
+├── api/                    # FastAPI 层：路由、服务、模型、鉴权
+│   ├── routers/            # 各业务路由（notebooks/notes/chat/podcasts/...）
+│   ├── auth.py             # JWT 鉴权与中间件
+│   ├── user_db.py          # 用户表访问
+│   └── user_manager.py     # 用户管理逻辑
+├── open_notebook/          # 核心领域层
+│   ├── domain/             # 数据模型与仓储
+│   ├── graphs/             # LangGraph 工作流
+│   ├── ai/                 # ModelManager / 供应商适配
+│   └── database/migrations # SurrealQL 迁移脚本
+├── frontend/               # Next.js 前端
+│   └── src/
+│       ├── app/            # App Router 页面
+│       ├── components/     # UI 组件
+│       └── lib/            # API 客户端、hooks、类型
+├── commands/               # 异步任务定义
+├── docs/                   # 项目文档（继承自上游）
+├── scripts/                # 辅助脚本
+└── tests/                  # pytest 测试
+```
 
+## 开发
 
-## Podcast Feature
+```bash
+uv run pytest tests/            # 全部测试
+cd frontend && npm run lint     # 前端 lint
+cd frontend && npm run test     # 前端测试 (vitest)
+```
 
-[![Check out our podcast sample](https://img.youtube.com/vi/D-760MlGwaI/0.jpg)](https://www.youtube.com/watch?v=D-760MlGwaI)
+各子模块有独立的 `CLAUDE.md` 提供更详细的架构说明：`api/`、`open_notebook/`、`frontend/` 等。
 
-## 📚 Documentation
+## 已知问题
 
-### Getting Started
-- **[📖 Introduction](docs/0-START-HERE/index.md)** - Learn what Open Notebook offers
-- **[⚡ Quick Start](docs/0-START-HERE/quick-start.md)** - Get up and running in 5 minutes
-- **[🔧 Installation](docs/1-INSTALLATION/index.md)** - Comprehensive setup guide
-- **[🎯 Your First Notebook](docs/0-START-HERE/first-notebook.md)** - Step-by-step tutorial
+- **`make start-all` 不可用**：Makefile 中的 `start-all` / `dev` / `full` 目标依赖 `docker-compose.dev.yml` 与 `docker-compose.full.yml`，这两个文件在本分支中不存在。请按上文"快速开始"手动分组件启动。`stop-all` / `status` 中的 `pkill` / `pgrep` 也是 Linux-only，Windows 下无效。
+- **Windows worker 编码问题**：见上文第 5 步的 `PYTHONUTF8` 说明。
+- **根目录 `package-lock.json`**：该多余文件会让 Next.js 误判 workspace root 并打印警告，可安全删除。
 
-### User Guide
-- **[📱 Interface Overview](docs/3-USER-GUIDE/interface-overview.md)** - Understanding the layout
-- **[📚 Notebooks](docs/3-USER-GUIDE/notebooks.md)** - Organizing your research
-- **[📄 Sources](docs/3-USER-GUIDE/sources.md)** - Managing content types
-- **[📝 Notes](docs/3-USER-GUIDE/notes.md)** - Creating and managing notes
-- **[💬 Chat](docs/3-USER-GUIDE/chat.md)** - AI conversations
-- **[🔍 Search](docs/3-USER-GUIDE/search.md)** - Finding information
+## 许可证
 
-### Advanced Topics
-- **[🎙️ Podcast Generation](docs/2-CORE-CONCEPTS/podcasts.md)** - Create professional podcasts
-- **[🔧 Content Transformations](docs/2-CORE-CONCEPTS/transformations.md)** - Customize content processing
-- **[🤖 AI Models](docs/4-AI-PROVIDERS/index.md)** - AI model configuration
-- **[🔌 MCP Integration](docs/5-CONFIGURATION/mcp-integration.md)** - Connect with Claude Desktop, VS Code and other MCP clients
-- **[🔧 REST API Reference](docs/7-DEVELOPMENT/api-reference.md)** - Complete API documentation
-- **[🔐 Security](docs/5-CONFIGURATION/security.md)** - Password protection and privacy
-- **[🚀 Deployment](docs/1-INSTALLATION/index.md)** - Complete deployment guides for all scenarios
+本项目采用 [MIT 许可证](LICENSE)。
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## 🗺️ Roadmap
-
-### Upcoming Features
-- **Live Front-End Updates**: Real-time UI updates for smoother experience
-- **Async Processing**: Faster UI through asynchronous content processing
-- **Cross-Notebook Sources**: Reuse research materials across projects
-- **Bookmark Integration**: Connect with your favorite bookmarking apps
-
-### Recently Completed ✅
-- **Next.js Frontend**: Modern React-based frontend with improved performance
-- **Comprehensive REST API**: Full programmatic access to all functionality
-- **Multi-Model Support**: 16+ AI providers including OpenAI, Anthropic, Ollama, LM Studio
-- **Advanced Podcast Generator**: Professional multi-speaker podcasts with Episode Profiles
-- **Content Transformations**: Powerful customizable actions for content processing
-- **Enhanced Citations**: Improved layout and finer control for source citations
-- **Multiple Chat Sessions**: Manage different conversations within notebooks
-
-See the [open issues](https://github.com/lfnovo/open-notebook/issues) for a full list of proposed features and known issues.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-## 📖 Need Help?
-- **🤖 AI Installation Assistant**: We have a [CustomGPT built to help you install Open Notebook](https://chatgpt.com/g/g-68776e2765b48191bd1bae3f30212631-open-notebook-installation-assistant) - it will guide you through each step!
-- **New to Open Notebook?** Start with our [Getting Started Guide](docs/0-START-HERE/index.md)
-- **Need installation help?** Check our [Installation Guide](docs/1-INSTALLATION/index.md)
-- **Want to see it in action?** Try our [Quick Start Tutorial](docs/0-START-HERE/quick-start.md)
-
-## 🤝 Community & Contributing
-
-### Join the Community
-- 💬 **[Discord Server](https://discord.gg/37XJPXfz2w)** - Get help, share ideas, and connect with other users
-- 🐛 **[GitHub Issues](https://github.com/lfnovo/open-notebook/issues)** - Report bugs and request features
-- ⭐ **Star this repo** - Show your support and help others discover Open Notebook
-
-### Contributing
-We welcome contributions! We're especially looking for help with:
-- **Frontend Development**: Help improve our modern Next.js/React UI
-- **Testing & Bug Fixes**: Make Open Notebook more robust
-- **Feature Development**: Build the coolest research tool together
-- **Documentation**: Improve guides and tutorials
-
-**Current Tech Stack**: Python, FastAPI, Next.js, React, SurrealDB
-**Future Roadmap**: Real-time updates, enhanced async processing
-
-See our [Contributing Guide](CONTRIBUTING.md) for detailed information on how to get started.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-## 📄 License
-
-Open Notebook is MIT licensed. See the [LICENSE](LICENSE) file for details.
-
-
-**Community Support**:
-- 💬 [Discord Server](https://discord.gg/37XJPXfz2w) - Get help, share ideas, and connect with users
-- 🐛 [GitHub Issues](https://github.com/lfnovo/open-notebook/issues) - Report bugs and request features
-- 🌐 [Website](https://www.open-notebook.ai) - Learn more about the project
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-<!-- MARKDOWN LINKS & IMAGES -->
-<!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
-[contributors-shield]: https://img.shields.io/github/contributors/lfnovo/open-notebook.svg?style=for-the-badge
-[contributors-url]: https://github.com/lfnovo/open-notebook/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/lfnovo/open-notebook.svg?style=for-the-badge
-[forks-url]: https://github.com/lfnovo/open-notebook/network/members
-[stars-shield]: https://img.shields.io/github/stars/lfnovo/open-notebook.svg?style=for-the-badge
-[stars-url]: https://github.com/lfnovo/open-notebook/stargazers
-[issues-shield]: https://img.shields.io/github/issues/lfnovo/open-notebook.svg?style=for-the-badge
-[issues-url]: https://github.com/lfnovo/open-notebook/issues
-[license-shield]: https://img.shields.io/github/license/lfnovo/open-notebook.svg?style=for-the-badge
-[license-url]: https://github.com/lfnovo/open-notebook/blob/master/LICENSE.txt
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/lfnovo
-[product-screenshot]: images/screenshot.png
-[Next.js]: https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=next.js&logoColor=white
-[Next-url]: https://nextjs.org/
-[React]: https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=react&logoColor=black
-[React-url]: https://reactjs.org/
-[Python]: https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white
-[Python-url]: https://www.python.org/
-[LangChain]: https://img.shields.io/badge/LangChain-3A3A3A?style=for-the-badge&logo=chainlink&logoColor=white
-[LangChain-url]: https://www.langchain.com/
-[SurrealDB]: https://img.shields.io/badge/SurrealDB-FF5E00?style=for-the-badge&logo=databricks&logoColor=white
-[SurrealDB-url]: https://surrealdb.com/
+原始项目 [open-notebook](https://github.com/lfnovo/open-notebook) 版权归 Luis Novo 所有（Copyright (c) 2024 Luis Novo），本项目在其基础上二次开发，完整保留原始版权声明。
